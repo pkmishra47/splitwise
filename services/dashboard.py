@@ -31,8 +31,17 @@ class DashBoard:
         else:
             print("No balances")
     
-    def getTransactionHistory(self):
-        return self.__TransactionHistory
+    def getTransactionHistory(self,UserID):
+        if UserID in self.__TransactionHistory:
+            list_of_transactions = self.__TransactionHistory[UserID]
+            for trans in list_of_transactions:
+                print("Total Amount used was " + str(trans["TotalAmount"]) + " your share was " + str(trans["OwnShare"]))
+
+    def setTransactionHistory(self,userID,transactionDetails):
+        if userID in self.__TransactionHistory:
+            (self.__TransactionHistory)[userID].append(transactionDetails)
+        else:
+            self.__TransactionHistory[userID] = [transactionDetails]
     
     def setUsers(self,UsersObj):
         self.__Users = UsersObj

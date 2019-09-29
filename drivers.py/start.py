@@ -31,33 +31,50 @@ class Splitwise:
                 dashboad.getDebtSummary()
             elif len(inp_list) == 2 and inp_list[0] == "SHOW":
                 dashboad.getDebtSummaryForUser(inp_list[1])
+            elif len(inp_list) == 2 and inp_list[0] == "TRAN":
+                dashboad.getTransactionHistory(inp_list[1])
             elif len(inp_list) > 2 and inp_list[0] == 'EXPENSE':
                 acting_user = inp_list[1]
                 amount_used = float(inp_list[2])
                 total_users_involved = int(inp_list[3])
+                
 
                 if inp_list[4+total_users_involved].strip() == 'EQUAL':
                     each_share = amount_used/total_users_involved
 
                     for i in range(4,4+total_users_involved):
+                        dashboad.setTransactionHistory(inp_list[i],{"TotalAmount":amount_used,"OwnShare":each_share,"Log":inp_list})
                         if inp_list[i] != acting_user:
                             dashboad.process_transaction(acting_user,inp_list[i],each_share)
 
                 elif inp_list[4+total_users_involved].strip() == 'EXACT':
                     exact_shares = {}
+                    has_own_share = False
                     for i in range(4,4+total_users_involved):
                         exact_shares[inp_list[i]] = inp_list[i+total_users_involved+1]
                     for userid,share in exact_shares.items():
+                        dashboad.setTransactionHistory(userid,{"TotalAmount":amount_used,"OwnShare":float(share),"Log":inp_list})
                         if acting_user != userid:
                             dashboad.process_transaction(acting_user,userid,float(share))
+                        else:
+                            has_own_share = True
+                    if not has_own_share:
+                        dashboad.setTransactionHistory(acting_user,{"TotalAmount":amount_used,"OwnShare":0.0,"Log":inp_list})
 
                 elif inp_list[4+total_users_involved].strip() == 'PERCENT':
                     byPer_exact_amount = {}
+                    has_own_share = False
                     for i in range(4,4+total_users_involved):
                         byPer_exact_amount[inp_list[i]] = amount_used*float(inp_list[i+total_users_involved+1])/100
                     for userid,share in byPer_exact_amount.items():
+                        dashboad.setTransactionHistory(userid,{"TotalAmount":amount_used,"OwnShare":share,"Log":inp_list})
                         if acting_user != userid:
                             dashboad.process_transaction(acting_user,userid,share)
+                        else:
+                            has_own_share = True
+                    if not has_own_share:
+                        dashboad.setTransactionHistory(acting_user,{"TotalAmount":amount_used,"OwnShare":0.0,"Log":inp_list})
+                            
 
 if __name__ == '__main__':
     obj = Splitwise()
